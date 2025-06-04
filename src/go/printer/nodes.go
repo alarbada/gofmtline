@@ -1447,11 +1447,15 @@ func (p *printer) stmt(stmt ast.Stmt, nextIsRBrace bool) {
 	case *ast.IfStmt:
 		p.print(token.IF)
 		p.controlClause(false, s.Init, s.Cond, nil)
-		p.block(s.Body, 1)
+		p.ifBody(s.Body, s.Else == nil)
 		if s.Else != nil {
-			p.print(blank, token.ELSE, blank)
-			switch s.Else.(type) {
-			case *ast.BlockStmt, *ast.IfStmt:
+			p.print(blank, token.ELSE)
+			switch elseStmt := s.Else.(type) {
+			case *ast.BlockStmt:
+				p.print(blank)
+				p.ifBody(elseStmt, true)
+			case *ast.IfStmt:
+				p.print(blank)
 				p.stmt(s.Else, nextIsRBrace)
 			default:
 				// This can only happen with an incorrectly
@@ -1904,6 +1908,43 @@ func (p *printer) funcBody(headerSize int, sep whiteSpace, b *ast.BlockStmt) {
 	if sep != ignore {
 		p.print(blank) // always use blank
 	}
+	p.block(b, 1)
+}
+
+// ifBody prints an if statement body. If the body is "small enough" and was originally
+// written on a single line, it prints the body on the current line, without line breaks.
+// Otherwise it prints the body as a normal multi-line block.
+func (p *printer) ifBody(b *ast.BlockStmt, isLastPart bool) {
+	if b == nil {
+		return
+	}
+
+	// save/restore composite literal nesting level
+	defer func(level int) {
+		p.level = level
+	}(p.level)
+	p.level = 0
+
+	const maxSize = 100
+	if p.bodySize(b, maxSize) <= maxSize {
+		p.setPos(b.Lbrace)
+		p.print(token.LBRACE)
+		if len(b.List) > 0 {
+			p.print(blank)
+			for i, s := range b.List {
+				if i > 0 {
+					p.print(token.SEMICOLON, blank)
+				}
+				p.stmt(s, i == len(b.List)-1)
+			}
+			p.print(blank)
+		}
+		p.print(noExtraLinebreak)
+		p.setPos(b.Rbrace)
+		p.print(token.RBRACE, noExtraLinebreak)
+		return
+	}
+
 	p.block(b, 1)
 }
 

@@ -1,0 +1,68 @@
+package main
+
+import (
+	"errors"
+	"log"
+)
+
+func main() {
+	err := errors.New("test error")
+
+	// Single-line if statements - should remain single-line
+	if err != nil { return }
+	if err != nil { return err }
+	if x := getValue(); x > 0 { doSomething() }
+	if len(getData()) > 0 { processData() }
+
+	// Multi-line if statements - should remain multi-line
+	if err != nil {
+		log.Println("error occurred")
+		return
+	}
+
+	if x := getValue(); x > 0 {
+		doSomething()
+		doSomethingElse()
+	}
+
+	// If-else statements - single line should stay single line
+	if err != nil { return err } else { return nil }
+	if x > 0 { doA() } else { doB() }
+
+	// If-else statements - multi-line should stay multi-line
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+
+	// If-else-if chains
+	if x := getValue(); x > 100 { doLarge() } else if x > 50 { doMedium() } else { doSmall() }
+
+	if x := getValue(); x > 100 {
+		doLarge()
+		logLarge()
+	} else if x > 50 {
+		doMedium()
+	} else {
+		doSmall()
+	}
+
+	// Edge cases
+	if true { /* comment */ }
+	if false { return; }
+	if err := getError(); err != nil { log.Fatal(err) }
+}
+
+func getValue() int    { return 42 }
+func getData() []int   { return []int{1, 2, 3} }
+func getError() error  { return nil }
+func doSomething()     {}
+func doSomethingElse() {}
+func processData()     {}
+func doA()             {}
+func doB()             {}
+func doLarge()         {}
+func doMedium()        {}
+func doSmall()         {}
+func logLarge()        {}
