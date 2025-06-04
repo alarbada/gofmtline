@@ -69,7 +69,8 @@ if err != nil {
 This repository is a full Go toolchain fork. To use the new formatting behavior, build the toolchain and use the `gofmt` binary from this repository:
 
 ```sh
-cd /path/to/gofmtline/src
+git clone https://github.com/alarbada/gofmtline.git
+cd gofmtline/src
 ./make.bash
 ./../bin/gofmt -w yourfile.go
 ```
