@@ -1,42 +1,98 @@
-# The Go Programming Language
+# gofmtline
 
-Go is an open source programming language that makes it easy to build simple,
-reliable, and efficient software.
+gofmtline is a fork of the Go programming language that modifies the `gofmt` tool to allow and preserve single-line `if` statements, making it easier to write and maintain concise error handling and guard clauses in Go code.
 
-![Gopher image](https://golang.org/doc/gopher/fiveyears.jpg)
-*Gopher image by [Renee French][rf], licensed under [Creative Commons 4.0 Attribution license][cc4-by].*
+## What is different?
 
-Our canonical Git repository is located at https://go.googlesource.com/go.
-There is a mirror of the repository at https://github.com/golang/go.
+In standard Go, `gofmt` will always expand `if` statements to multiple lines, even if they were originally written on a single line. With gofmtline, if you write a single-line `if` statement, it will remain on a single line after formatting, as long as the body is small enough. Multi-line `if` statements and more complex cases are formatted as usual.
 
-Unless otherwise noted, the Go source files are distributed under the
-BSD-style license found in the LICENSE file.
+## Example
 
-### Download and Install
+**Input (single-line if):**
+```go
+if err != nil { return err }
+if x := foo(); x > 0 { bar() }
+```
 
-#### Binary Distributions
+**Output with gofmtline:**
+```go
+if err != nil { return err }
+if x := foo(); x > 0 { bar() }
+```
 
-Official binary distributions are available at https://go.dev/dl/.
+**Input (multi-line if):**
+```go
+if err != nil {
+    log.Println("error")
+    return err
+}
+```
 
-After downloading a binary release, visit https://go.dev/doc/install
-for installation instructions.
+**Output with gofmtline:**
+```go
+if err != nil {
+    log.Println("error")
+    return err
+}
+```
 
-#### Install From Source
+**Input (if-else, single-line):**
+```go
+if err != nil { return err } else { return nil }
+```
 
-If a binary distribution is not available for your combination of
-operating system and architecture, visit
-https://go.dev/doc/install/source
-for source installation instructions.
+**Output with gofmtline:**
+```go
+if err != nil { return err } else { return nil }
+```
 
-### Contributing
+**Input (if-else, multi-line):**
+```go
+if err != nil {
+    return err
+} else {
+    return nil
+}
+```
 
-Go is the work of thousands of contributors. We appreciate your help!
+**Output with gofmtline:**
+```go
+if err != nil {
+    return err
+} else {
+    return nil
+}
+```
 
-To contribute, please read the contribution guidelines at https://go.dev/doc/contribute.
+## Usage
 
-Note that the Go project uses the issue tracker for bug reports and
-proposals only. See https://go.dev/wiki/Questions for a list of
-places to ask questions about the Go language.
+This repository is a full Go toolchain fork. To use the new formatting behavior, build the toolchain and use the `gofmt` binary from this repository:
 
-[rf]: https://reneefrench.blogspot.com/
-[cc4-by]: https://creativecommons.org/licenses/by/4.0/
+```sh
+cd /path/to/gofmtline/src
+./make.bash
+./../bin/gofmt -w yourfile.go
+```
+
+## VS Code Integration
+
+To use gofmtline as your default Go formatter in VS Code, add the following to your `settings.json` (replace the path as needed):
+
+```jsonc
+"go.formatTool": "custom",
+"go.alternateTools": {
+  "customFormatter": "/path/to/gofmtline/bin/gofmt"
+},
+```
+
+This will make VS Code use your custom gofmt binary for formatting Go files after you build the toolchain.
+
+## Compatibility
+
+- All other formatting rules and Go syntax are preserved.
+- Only the formatting of single-line `if` statements is changed.
+
+## License
+
+This project is a fork of the Go programming language and is distributed under the same BSD-style license as Go.
+
