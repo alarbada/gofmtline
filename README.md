@@ -93,7 +93,20 @@ This will make VS Code use your custom gofmt binary for formatting Go files afte
 - All other formatting rules and Go syntax are preserved.
 - Only the formatting of single-line `if` statements is changed.
 
+## Contributing
+
+While (I hope) this is pretty much done, if for some reason you want to change the implementation, do this:
+
+- First, make your changes. I did modify the `go/printer/nodes.go`, you would start from there.
+- The `.input` and `.golden` files will ensure that your formatting works. The ones added are `ifstmt.input` and `ifstmt.golden`.
+- To run tests and ensure that it works, run this:
+
+```sh
+cd src
+./make.bash # or use the make file corresponding to your OS
+cd ./cmd/gofmt && ../../../bin/go test -v -run TestRewrite
+```
+
 ## License
 
 This project is a fork of the Go programming language and is distributed under the same BSD-style license as Go.
-
